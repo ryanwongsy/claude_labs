@@ -2,35 +2,49 @@ import requests
 import sys
 
 def get_weather():
-    # If you didn't type a city, show instructions
-    if len(sys.argv) < 2:
-        print("Usage: python weather_app.py <city or zip code>")
-        return
-
-    # Take what you typed (like "London" or "90210")
-    location = " ".join(sys.argv[1:])
+    # Use the city you type, or default to Singapore
+    location = " ".join(sys.argv[1:]) if len(sys.argv) > 1 else "Singapore"
     
-    # This is the secret URL that gives us the weather data
     url = f"https://wttr.in/{location}?format=j1"
     
-    print(f"Fetching weather for: {location}...")
+    # This dictionary maps descriptions to icons
+    icons = {
+        "Sunny": "☀️",
+        "Clear": "✨",
+        "Partly cloudy": "⛅",
+        "Cloudy": "☁️",
+        "Overcast": "☁️",
+        "Mist": "🌫️",
+        "Patchy rain nearby": "🌦️",
+        "Light rain": "🌧️",
+        "Moderate rain": "🌧️",
+        "Heavy rain": "⛈️",
+        "Thundery outbreaks possible": "⚡"
+    }
 
     try:
         response = requests.get(url)
         data = response.json()
-
-        # Digging through the data to find the current weather
+        
         current = data['current_condition'][0]
-        temp_c = current['temp_C']
         desc = current['weatherDesc'][0]['value']
+        temp = current['temp_C']
+        humidity = current['humidity']
+        
+        # Get the icon from our dictionary, or use a rainbow if not found
+        icon = icons.get(desc, "🌈")
 
-        print("\n--- RESULTS ---")
-        print(f"Condition: {desc}")
-        print(f"Temperature: {temp_c}°C")
-        print("---------------")
+        print("\n" + "⭐" * 25)
+        print(f" {icon}  WEATHER FOR {location.upper()}")
+        print("⭐" * 25)
+        print(f" Condition : {desc}")
+        print(f" Temp      : {temp}°C")
+        print(f" Humidity  : {humidity}%")
+        print("-" * 25 + "\n")
 
-    except:
-        print("Error: Could not connect to the weather service.")
+    except Exception as e:
+        print("Error: Could not fetch weather data.")
 
 if __name__ == "__main__":
     get_weather()
+    
